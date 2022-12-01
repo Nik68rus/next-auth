@@ -1,10 +1,13 @@
 import { useState } from 'react';
 import classes from './auth-form.module.css';
 import { signIn } from 'next-auth/react';
+import { useRouter } from 'next/router';
+import { toast } from 'react-toastify';
 
 function AuthForm() {
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({ email: '', password: '' });
+  const router = useRouter();
 
   function inputChangeHandler(evt) {
     setFormData((prevState) => ({
@@ -29,9 +32,9 @@ function AuthForm() {
       if (!response.ok) {
         throw new Error(data.message || 'Something went wrong');
       }
-      console.log(data);
+      toast.success(data.message);
     } catch (err) {
-      console.log(err);
+      toast.error(err.message);
     }
   }
 
@@ -42,6 +45,11 @@ function AuthForm() {
       ...formData,
     });
     console.log(result);
+    if (result.ok && router.query.from) {
+      router.replace(router.query.from);
+    } else if (result.ok && !router.query.from) {
+      router.replace('/');
+    }
   }
 
   return (
